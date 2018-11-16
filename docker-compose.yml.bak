@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
 
   ### Nginx container #########################################
@@ -38,6 +38,39 @@ services:
       restart: always
       networks:
         - net-php72
+        - net-mysql
+        - net-redis
+
+  ### Mysql container #########################################
+
+  mysql:
+      image: mysql:5.6
+      ports:
+        - "${MYSQL_PORT}:3306"
+      volumes:
+        - ./work/components/mysql/data:/var/lib/mysql:rw
+        - ./work/components/mysql/config/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+        - ./work/components/mysql/log:/var/log/mysql:rw
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      networks:
+        - net-mysql
+
+  ### Redis container #########################################
+
+  redis:
+      image: redis:4.0
+      ports:
+        - "${REDIS_PORT}:6379"
+      volumes:
+        - ./work/components/redis/config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+        - ./work/components/redis/log/redis.log:/var/log/redis/redis.log:rw
+      restart: always
+      networks:
+        - net-redis
 
 networks:
   net-php72:
+  net-mysql:
+  net-redis:
